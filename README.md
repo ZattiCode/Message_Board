@@ -35,13 +35,3 @@ Projeto simples para portfólio mostrando **front-end + back-end + banco**.
   main.js
   styles.css
 ```
-
-## Deploy (sugestão)
-- Suba o repositório no GitHub.
-- Hospede o servidor no Render/Fly.io. Como é app Node simples, basta apontar para `npm start` com Node 18+.
-- O front já é servido pelo próprio Express (rota estática).
-
-## Observações
-- O banco é SQLite (arquivo local). Para produção, troque por Postgres facilmente.
-- Segurança básica apenas para demo (sem autenticação).
-- Código em **ES Modules**.
