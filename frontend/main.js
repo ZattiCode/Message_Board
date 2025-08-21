@@ -1,4 +1,4 @@
-const API = 'https://Message_Board.onrender.com/api'; // ajuste após criar o serviço
+const API = 'https://message-board-75lf.onrender.com/api'; // ajuste após criar o serviço
 
 const $form = document.getElementById('form');
 const $name = document.getElementById('name');
