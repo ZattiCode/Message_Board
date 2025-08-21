@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Message Board</title>
+  <meta name="description" content="Mural de recados simples — demo full stack.">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%237ee787%22 /></svg>">
+</head>
+
+<body>
+  <header class="container header">
+    <div class="brand">
+      <span class="dot"></span>
+      <h1>Mural do Gustavo</h1>
+    </div>
+    <p class="muted">Deixe seu recado e veja o que outras pessoas escreveram. :)</p>
+  </header>
+
+  <main class="container grid">
+    <section class="card form-card">
+      <h2>Novo recado</h2>
+      <form id="form" novalidate>
+        <div class="row">
+          <label for="name">Nome</label>
+          <input type="text" id="name" autocomplete="name" placeholder="Seu nome" required />
+        </div>
+        <div class="row">
+          <label for="message">Mensagem</label>
+          <textarea id="message" placeholder="Escreva algo..." required></textarea>
+        </div>
+        <div class="actions">
+          <button type="submit" class="primary">Publicar</button>
+          <button type="button" id="refresh" class="ghost">Atualizar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card list-card">
+      <div class="list-head">
+        <h2>Recados recentes</h2>
+        <span id="count" class="count">0</span>
+      </div>
+      <ul id="messages" class="messages" aria-live="polite"></ul>
+    </section>
+    <button id="logoutAdmin" style="display:none;">Sair do modo admin</button>
+  </main>
+
+  <footer class="container footer">
+    <small class="muted">Mini app demonstrativo.</small>
+  </footer>
+
+  <script src="main.js"></script>
+</body>
+
+</html>
