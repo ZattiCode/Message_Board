@@ -19,7 +19,10 @@ app.use(cors());
 app.use(express.json());
 
 // Serve o frontend estático (ajuste o caminho se mudar a estrutura)
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
+});
 
 // ---------- Banco (SQLite) ----------
 /*
