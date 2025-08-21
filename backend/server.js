@@ -1,7 +1,8 @@
-// server.js (ESM)
+// server.js (ESM) — pronto para Render Free
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sqlite3 from 'sqlite3';
@@ -17,16 +18,31 @@ const ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
 app.use(cors());
 app.use(express.json());
 
-// Serve o frontend estático (ajuste o caminho se precisar)
+// Serve o frontend estático (ajuste o caminho se mudar a estrutura)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// --- Banco (SQLite via promises) ---
+// ---------- Banco (SQLite) ----------
+/*
+ * Em plano Free do Render, NÃO use DATABASE_FILE (não há disco persistente).
+ * Deixe salvar ao lado do server.js. Se futuramente tiver disco: defina
+ * process.env.DATABASE_FILE = '/data/guestbook.db' e ele usará esse caminho.
+ */
 const DB_FILE = process.env.DATABASE_FILE || path.join(__dirname, 'guestbook.db');
-const dbPromise = open({ filename: DB_FILE, driver: sqlite3.Database });
+
+// Garante que o diretório do arquivo existe (evita SQLITE_CANTOPEN)
+fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
+
+console.log('Using DB at:', DB_FILE);
+
+const dbPromise = open({
+  filename: DB_FILE,
+  driver: sqlite3.Database,
+});
 
 async function init() {
   const db = await dbPromise;
   await db.exec('PRAGMA foreign_keys = ON;');
+
   await db.exec(`
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,33 +54,38 @@ async function init() {
     );
   `);
 
-  // migrações brandas (caso já exista tabela sem colunas)
+  // Migrações brandas (ignora erro se já existirem)
   try { await db.exec(`ALTER TABLE messages ADD COLUMN likes INTEGER DEFAULT 0`); } catch {}
   try { await db.exec(`ALTER TABLE messages ADD COLUMN dislikes INTEGER DEFAULT 0`); } catch {}
 }
 await init();
 
-// --- Rotas ---
+// ---------- Rotas ----------
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// listar mensagens
+// Listar mensagens
 app.get('/api/messages', async (_req, res) => {
   const db = await dbPromise;
   const rows = await db.all('SELECT * FROM messages ORDER BY created_at DESC');
   res.json(rows);
 });
 
-// criar mensagem
+// Criar mensagem
 app.post('/api/messages', async (req, res) => {
   const { name, message } = req.body || {};
-  if (!name || !message) return res.status(400).json({ error: 'name and message are required' });
+  if (!name || !message) {
+    return res.status(400).json({ error: 'name and message are required' });
+  }
   const db = await dbPromise;
-  const stmt = await db.run('INSERT INTO messages (name, message) VALUES (?, ?)', [name, message]);
+  const stmt = await db.run(
+    'INSERT INTO messages (name, message) VALUES (?, ?)',
+    [name, message]
+  );
   const inserted = await db.get('SELECT * FROM messages WHERE id = ?', [stmt.lastID]);
   res.status(201).json(inserted);
 });
 
-// votar (idempotente com troca like<->dislike; front envia {vote, prev})
+// Votar (idempotente com troca like <-> dislike; front envia { vote, prev })
 app.post('/api/messages/:id/vote', async (req, res) => {
   const id = Number(req.params.id);
   const { vote, prev } = req.body || {}; // vote: 'like' | 'dislike' | null ; prev idem
@@ -78,9 +99,15 @@ app.post('/api/messages/:id/vote', async (req, res) => {
   try {
     // remove voto anterior
     if (prev === 'like') {
-      await db.run('UPDATE messages SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?', [id]);
+      await db.run(
+        'UPDATE messages SET likes = CASE WHEN likes > 0 THEN likes - 1 ELSE 0 END WHERE id = ?',
+        [id]
+      );
     } else if (prev === 'dislike') {
-      await db.run('UPDATE messages SET dislikes = CASE WHEN dislikes > 0 THEN dislikes - 1 ELSE 0 END WHERE id = ?', [id]);
+      await db.run(
+        'UPDATE messages SET dislikes = CASE WHEN dislikes > 0 THEN dislikes - 1 ELSE 0 END WHERE id = ?',
+        [id]
+      );
     }
 
     // aplica novo voto
@@ -100,7 +127,7 @@ app.post('/api/messages/:id/vote', async (req, res) => {
   }
 });
 
-// deletar (protegido por token)
+// Deletar (protegido por token)
 app.delete('/api/messages/:id', async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1]; // "Bearer <token>"
   if (token !== ADMIN_TOKEN) {
@@ -112,12 +139,12 @@ app.delete('/api/messages/:id', async (req, res) => {
   res.status(204).send();
 });
 
-// fallback para o front
+// Fallback: serve o index.html do front
 app.get('*', (_req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// start
+// Start
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
