@@ -27,7 +27,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
  * Deixe salvar ao lado do server.js. Se futuramente tiver disco: defina
  * process.env.DATABASE_FILE = '/data/guestbook.db' e ele usará esse caminho.
  */
-const DB_FILE = process.env.DATABASE_FILE || path.join(__dirname, 'guestbook.db');
+const DB_FILE = process.env.DATABASE_FILE || '/tmp/guestbook.db';
 
 // Garante que o diretório do arquivo existe (evita SQLITE_CANTOPEN)
 fs.mkdirSync(path.dirname(DB_FILE), { recursive: true });
