@@ -1,4 +1,4 @@
-const API = 'https://messageboard-production-ff7b.up.railway.app/api';
+const API = '/api';
 
 const $form = document.getElementById('form');
 const $name = document.getElementById('name');
