@@ -121,4 +121,28 @@ textarea{min-height:110px;resize:vertical}
   box-shadow: 0 0 0 2px rgba(250,3,1,0.15); 
 }
 
+.back-portfolio{
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  z-index: 1000;
+}
+.back-portfolio:hover{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(126,231,135,.15);
+}
+.back-portfolio svg{ flex: 0 0 auto; }
+@media (max-width: 520px){
+  .back-portfolio span{ display: none; } /* deixa só o ícone no mobile */
+}
 
